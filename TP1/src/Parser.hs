@@ -47,19 +47,21 @@ lis = makeTokenParser
 --- Parser de expresiones enteras
 -----------------------------------
 intexp :: Parser (Exp Int)
-intexp = (do {reservedOp "-"; e <- intexp; return (UMinus e)})
-         <|> parens intexp
+intexp = (do {reservedOp lis "-"; e <- intexp; return (UMinus e)})
+         <|> parens lis intexp
          <|> chainl1 intexp (do {reservedOp lis "+"; return (Plus)})
          <|> chainl1 intexp (do {reservedOp lis "-"; return (Minus)})
          <|> chainl1 intexp (do {reservedOp lis "*"; return (Times)})
          <|> chainl1 intexp (do {reservedOp lis "/"; return (Div)})
-         <|> (do {num <- natural lis; return (Const num)})
-         <|> (do id <- identifier lis
-                 (do reservedOp lis "++"
-                     return (VarInc id))
-                 <|> (do reservedOp lis "--"
-                         return (VarDec id))
-                 <|> return (Var id))
+         <|> (do {num <- natural lis; return (Const $ fromIntegral num)})
+         <|> try (do i <- identifier lis
+                     reservedOp lis "++"
+                     return (VarInc i))
+         <|> try (do i <- identifier lis
+                     reservedOp lis "--"
+                     return (VarDec i))
+         <|> try (do i <- identifier lis
+                     return (Var i))
 
 
 ------------------------------------
@@ -67,18 +69,18 @@ intexp = (do {reservedOp "-"; e <- intexp; return (UMinus e)})
 ------------------------------------
 
 boolexp :: Parser (Exp Bool)
-boolexp = (do {reserved "true"; return (BTrue)})
-          <|> (do {reserved "false"; return (BFalse)})
+boolexp = (do {reserved lis "true"; return (BTrue)})
+          <|> (do {reserved lis "false"; return (BFalse)})
           <|> (do reservedOp lis "!"
                   e <- boolexp
                   return (Not e))
-          <|> parens boolexp
-          <|> chainl1 boolexp (do {reservedOp "&&"; return (And)}) 
-          <|> chainl1 boolexp (do {reservedOp "||"; return (Or)})
-          <|> chainl1 intexp (do {reservedOp "=="; return (Eq)})
-          <|> chainl1 intexp (do {reservedOp "!="; return (NEq)})
-          <|> chainl1 intexp (do {reservedOp "<"; return (Lt)})
-          <|> chainl1 intexp (do {reservedOp ">"; return (Gt)})
+          <|> parens lis boolexp
+          <|> chainl1 boolexp (do {reservedOp lis "&&"; return (And)}) 
+          <|> chainl1 boolexp (do {reservedOp lis "||"; return (Or)})
+          <|> do { ei <-intexp; reservedOp lis "=="; ed <- intexp; return (Eq ei ed)}
+          <|> do { ei <-intexp; reservedOp lis "!="; ed <- intexp; return (NEq ei ed)}
+          <|> do { ei <-intexp; reservedOp lis "<";  ed <- intexp; return (Lt ei ed)}
+          <|> do { ei <-intexp; reservedOp lis ">";  ed <- intexp; return (Gt ei ed)}
 
 -----------------------------------
 --- Parser de comandos
@@ -97,7 +99,7 @@ parse_if = do reserved lis "if"
               try (do reserved lis "else"
                       c2 <- braces lis comm
                       return (IfThenElse b c1 c2))
-              <|> return (IfThen b c1)
+                   <|> return (IfThen b c1)
 
 parse_repeat = do reserved lis "repeat"
                   c <- braces lis comm
