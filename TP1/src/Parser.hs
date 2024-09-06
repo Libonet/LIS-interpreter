@@ -47,36 +47,44 @@ lis = makeTokenParser
 --- Parser de expresiones enteras
 -----------------------------------
 intexp :: Parser (Exp Int)
-intexp = (do {reservedOp lis "-"; e <- intexp; return (UMinus e)})
-         <|> parens lis intexp
-         <|> chainl1 intexp (do {reservedOp lis "+"; return (Plus)})
-         <|> chainl1 intexp (do {reservedOp lis "-"; return (Minus)})
-         <|> chainl1 intexp (do {reservedOp lis "*"; return (Times)})
-         <|> chainl1 intexp (do {reservedOp lis "/"; return (Div)})
+intexp = chainl1 term sumOps
+
+term = chainl1 factor mulOps
+
+factor = (do {reservedOp lis "-"; e <- intexp; return (UMinus e)})
          <|> (do {num <- natural lis; return (Const $ fromIntegral num)})
-         <|> try (do i <- identifier lis
-                     reservedOp lis "++"
-                     return (VarInc i))
-         <|> try (do i <- identifier lis
-                     reservedOp lis "--"
-                     return (VarDec i))
-         <|> try (do i <- identifier lis
-                     return (Var i))
+         <|> (do {i <- identifier lis;
+                  (do reservedOp lis "++"
+                      return (VarInc i))
+                  <|> (do reservedOp lis "--"
+                          return (VarDec i))
+                  <|> return (Var i)})
+         <|> parens lis intexp
 
+--         <|> try (do i <- identifier lis
+--                     reservedOp lis "--"
+--                     return (VarDec i))
+--         <|> try (do i <- identifier lis
+--                     return (Var i))
 
+sumOps = (do {reservedOp lis "+"; return (Plus)})
+         <|> (do {reservedOp lis "-"; return (Minus)})
+         
+mulOps = (do {reservedOp lis "*"; return (Times)})
+         <|> (do {reservedOp lis "/"; return (Div)})
 ------------------------------------
 --- Parser de expresiones booleanas
 ------------------------------------
 
 boolexp :: Parser (Exp Bool)
-boolexp = (do {reserved lis "true"; return (BTrue)})
+boolexp = chainl1 boolexp (do {reservedOp lis "&&"; return (And)}) 
+          <|> chainl1 boolexp (do {reservedOp lis "||"; return (Or)})
+          <|> (do {reserved lis "true"; return (BTrue)})
           <|> (do {reserved lis "false"; return (BFalse)})
           <|> (do reservedOp lis "!"
                   e <- boolexp
                   return (Not e))
           <|> parens lis boolexp
-          <|> chainl1 boolexp (do {reservedOp lis "&&"; return (And)}) 
-          <|> chainl1 boolexp (do {reservedOp lis "||"; return (Or)})
           <|> do { ei <-intexp; reservedOp lis "=="; ed <- intexp; return (Eq ei ed)}
           <|> do { ei <-intexp; reservedOp lis "!="; ed <- intexp; return (NEq ei ed)}
           <|> do { ei <-intexp; reservedOp lis "<";  ed <- intexp; return (Lt ei ed)}
@@ -88,7 +96,9 @@ boolexp = (do {reserved lis "true"; return (BTrue)})
 
 -- chainl1 comm (do {reservedOp lis ";"; return (Seq)}) == Seq comm comm
 comm :: Parser Comm
-comm = chainl1 comm (do {reservedOp lis ";"; return (Seq)}) <|> try parse_skip <|> try parse_if <|> try parse_repeat <|> parse_identifier
+comm = chainl1 comm' (do {reservedOp lis ";"; return (Seq)}) 
+
+comm' = try parse_skip <|> try parse_if <|> try parse_repeat <|> parse_identifier
 
 parse_skip = do reserved lis "skip"
                 return Skip
