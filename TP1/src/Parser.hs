@@ -77,7 +77,28 @@ mulOps = (do {reservedOp lis "*"; return (Times)})
 ------------------------------------
 
 boolexp :: Parser (Exp Bool)
-boolexp = chainl1 boolexp (do {reservedOp lis "&&"; return (And)}) 
+boolexp = chainl1 boolexp' (do {reservedOp lis "&&"; return (And)}
+                            <|> do {reservedOp lis "||"; return (Or)})
+
+boolexp':: Parser (Exp Bool)
+boolexp' = do {reserved lis "true"; return BTrue}
+          <|> do {reserved lis "false"; return BFalse}
+          <|> do {reservedOp lis "!"; e <- boolexp; return (Not e)}
+          <|> parens lis boolexp
+          <|> do {ei <- intexp;
+                  (do {reservedOp lis "=="; ed <- intexp; return (Eq ei ed)})
+                  <|> (do {reservedOp lis "<"; ed <- intexp; return (Lt ei ed)})
+                  <|> (do {reservedOp lis ">"; ed <- intexp; return (Gt ei ed)})
+                  <|> (do {reservedOp lis "!="; ed <- intexp; return (NEq ei ed)})}
+          -- <|> chainl1 boolexp (do {reservedOp lis "&&"; return (And)})
+
+       {--   <|> do {ei <- intexp; reservedOp lis "=="; ed <- intexp; return (Eq ei ed)}
+          <|> do {ei <- intexp; reservedOp lis "<"; ed <- intexp; return (Lt ei ed)}
+          <|> do {ei <- intexp; reservedOp lis ">"; ed <- intexp; return (Gt ei ed)}
+          <|> do {ei <- intexp; reservedOp lis "!="; ed <- intexp; return (NEq ei ed)} --}
+
+
+{-boolexp = chainl1 boolexp (do {reservedOp lis "&&"; return (And)}) 
           <|> chainl1 boolexp (do {reservedOp lis "||"; return (Or)})
           <|> (do {reserved lis "true"; return (BTrue)})
           <|> (do {reserved lis "false"; return (BFalse)})
@@ -88,7 +109,7 @@ boolexp = chainl1 boolexp (do {reservedOp lis "&&"; return (And)})
           <|> do { ei <-intexp; reservedOp lis "=="; ed <- intexp; return (Eq ei ed)}
           <|> do { ei <-intexp; reservedOp lis "!="; ed <- intexp; return (NEq ei ed)}
           <|> do { ei <-intexp; reservedOp lis "<";  ed <- intexp; return (Lt ei ed)}
-          <|> do { ei <-intexp; reservedOp lis ">";  ed <- intexp; return (Gt ei ed)}
+          <|> do { ei <-intexp; reservedOp lis ">";  ed <- intexp; return (Gt ei ed)}-}
 
 -----------------------------------
 --- Parser de comandos
