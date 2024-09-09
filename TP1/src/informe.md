@@ -20,6 +20,20 @@ $~~~~~~~~~~~~~~$| intexp '-' '-'
 
 ## EJERCICIO 4
 
-$${x \in dom~\sigma \over \langle x++, \sigma \rangle \Downarrow_{exp} \langle ~\sigma~x + 1, [\sigma~|~x : ~\sigma~x + 1] \rangle}~VarInc$$
+$${x \in dom~\sigma \over \langle x++, \sigma \rangle \Downarrow_{exp} \langle ~\sigma~x + 1, [\sigma~|~x : ~\sigma~x + 1] \rangle}~VARINC$$
 
-$${x \in dom~\sigma \over \langle x--, \sigma \rangle \Downarrow_{exp} \langle ~\sigma~x - 1, [\sigma~|~x : ~\sigma~x - 1] \rangle}~VarDec$$
+$${x \in dom~\sigma \over \langle x--, \sigma \rangle \Downarrow_{exp} \langle ~\sigma~x - 1, [\sigma~|~x : ~\sigma~x - 1] \rangle}~VARDEC$$
+
+## EJERCICIO 5
+Queremos ver que si $t \rightsquigarrow t'$ y $t \rightsquigarrow t''$, entonces $t' = t''$.  
+Para ello haremos inducción sobre la derivación $t \rightsquigarrow t'$.
+
+HI) para toda subderivación de $t \rightsquigarrow t'$ se verifica la regla.
+
+Si la última derivación de $t \rightsquigarrow t'$ usa la regla:
+
+* $ASS$: Tenemos que t tiene la forma $\langle v=e, \sigma \rangle$ y t' tiene la forma $\langle skip, [\sigma'~|~v:n] \rangle$. Por la forma de t, en la derivación $t \rightsquigarrow t''$ la última regla aplicada solo puede haber sido $ASS$, ya que no hay otra regla donde t pueda ser una asignación. Luego, como $\Downarrow_{exp}$ es determinista, resulta $t'=t''$.
+
+* $SEQ_1$: Tenemos que t tiene la forma $\langle skip; c_1, \sigma \rangle$ y t' tiene la forma $\langle c_1, \sigma \rangle$. Por la forma de t, en la derivación $t \rightsquigarrow t''$ la última regla aplicada solo puede haber sido $SEQ_1$, ya que no hay otra regla donde t pueda ser una secuenciación con un skip. Luego, $t'=t''$.
+
+* $SEQ_2$: Tenemos que t tiene la forma $\langle c_0; c_1, \sigma \rangle$ y t' tiene la forma $\langle c_0'; c_1, \sigma' \rangle$. Por la forma de t, la última derivación en $t \rightsquigarrow t''$ debe ser aplicando la regla $SEQ_2$, donde la forma de t'' es $\langle c_0''; c_1, \sigma'' \rangle$. Nuestra HI es que si $\langle c_0, \sigma \rangle \rightsquigarrow \langle c_0', \sigma' \rangle$ y $\langle c_0, \sigma \rangle \rightsquigarrow \langle c_0'',\sigma'' \rangle$, entonces $\langle c_0', \sigma' \rangle = \langle c_0'', \sigma'' \rangle$. Luego por HI, $t' = \langle c_0'; c_1, \sigma' \rangle = \langle c_0''; c_1, \sigma'' \rangle = t''$
