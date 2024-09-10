@@ -1,7 +1,7 @@
 # HOLA
 ### holi
 
-> La vida es muy corta hacete torta. -Tad Marburg
+> La vida es. -Santiago Libonati
 
 *énfasis* (cursiva)
 
@@ -45,3 +45,30 @@ Si la última derivación de $t \rightsquigarrow t'$ usa la regla:
 * $REPEAT$: Tenemos que t tiene la forma $\langle \bold{repeat}~c~\bold{until}~b~, \sigma \rangle$ y t' tiene la forma $\langle c; \bold{if}~b~\bold{then}~skip~\bold{else}~\bold{repeat}~c~\bold{until}~b~, \sigma \rangle$. Por la forma de t, la última regla aplicada en la derivación $t \rightsquigarrow t''$ debe ser $REPEAT$, y por ende $t'=t''$.
 
 Hemos probado que para cada posible regla aplicada en la derivación $t \rightsquigarrow t'$ se verifica lo planteado, con lo cual queda probado que si $t \rightsquigarrow t'$ y $t \rightsquigarrow t''$, entonces $t' = t''$, esto es, la relación de evaluación en un paso $\rightsquigarrow$ es determinista.
+
+## EJERCICIO 6
+
+<x=x+1; y=x, \sigma>
+
+Sea $x \in dom~\sigma:$
+
+
+$${{x \in dom~\sigma 
+\over 
+\langle x++, \sigma \rangle \Downarrow_{exp} \langle ~\sigma~x + 1, [\sigma~|~x : ~\sigma~x + 1] \rangle}~VARINC
+\over
+
+\langle y=x++, \sigma \rangle \rightsquigarrow \langle ~skip, [\sigma~|~y : ~\sigma~x + 1] \rangle
+}~ASS$$
+
+
+---
+
+
+$${{x \in dom~\sigma 
+\over 
+\langle x, \sigma \rangle \Downarrow_{exp} \langle ~\sigma~x, \sigma \rangle}~VAR
+\over
+
+\langle y=x, \sigma \rangle \rightsquigarrow \langle ~skip, [\sigma~|~y : ~\sigma~x] \rangle
+}~ASS$$
