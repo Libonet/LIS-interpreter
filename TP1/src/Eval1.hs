@@ -39,7 +39,17 @@ stepCommStar c    s = Data.Strict.Tuple.uncurry stepCommStar $ stepComm c s
 -- Evalúa un paso de un comando en un estado dado
 -- Completar la definición
 stepComm :: Comm -> State -> Pair Comm State
-stepComm = undefined
+stepComm Skip s = (Skip, s)
+stepComm (Let v e) s = (Skip ,update v (evalExp i s) s)
+stepComm (Seq Skip c) s = stepComm c s
+stepComm (Seq c1 c2) s = let (c', s') = stepComm c1 s
+                         in  stepComm (Seq c' c2) s
+stepComm (IfThenElse b c1 c2) s = if evalExp b s 
+                                  then stepComm c1 s
+                                  else stepComm c2 s
+stepComm (RepeatUntil c b)@r = if evalExp b s
+                               then stepComm (Seq c r) s
+                               else stepComm Skip s
 
 -- Evalúa una expresión
 -- Completar la definición
