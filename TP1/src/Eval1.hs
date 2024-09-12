@@ -6,7 +6,16 @@ where
 
 import           AST
 import qualified Data.Map.Strict               as M
-import           Data.Strict.Tuple
+import           Data.Strict.Tuple as T
+
+
+
+
+import Data.Maybe -- NO SE SI DEJAR ESTO
+
+
+
+
 
 -- Estados
 type State = M.Map Variable Int
@@ -19,7 +28,7 @@ initState = M.empty
 -- Busca el valor de una variable en un estado
 -- Completar la definición
 lookfor :: Variable -> State -> Int
-lookfor = M.lookup
+lookfor v s = fromJust $ M.lookup v s
 
 -- Cambia el valor de una variable en un estado
 -- Completar la definición
@@ -34,24 +43,67 @@ eval p = stepCommStar p initState
 -- hasta alcanzar un Skip
 stepCommStar :: Comm -> State -> State
 stepCommStar Skip s = s
-stepCommStar c    s = Data.Strict.Tuple.uncurry stepCommStar $ stepComm c s
+stepCommStar c    s = T.uncurry stepCommStar $ stepComm c s
 
 -- Evalúa un paso de un comando en un estado dado
 -- Completar la definición
 stepComm :: Comm -> State -> Pair Comm State
-stepComm Skip s = (Skip, s)
-stepComm (Let v e) s = (Skip ,update v (evalExp i s) s)
+stepComm Skip s = Skip :!: s
+stepComm (Let v e) s = let n :!: s' = evalExp e s
+                           s'' = update v n s'
+                       in Skip :!: s''
 stepComm (Seq Skip c) s = stepComm c s
-stepComm (Seq c1 c2) s = let (c', s') = stepComm c1 s
+stepComm (Seq c1 c2) s = let c' :!: s' = stepComm c1 s
                          in  stepComm (Seq c' c2) s
-stepComm (IfThenElse b c1 c2) s = if evalExp b s 
+stepComm (IfThenElse b c1 c2) s = if T.fst $ evalExp b s 
                                   then stepComm c1 s
                                   else stepComm c2 s
-stepComm (RepeatUntil c b)@r = if evalExp b s
-                               then stepComm (Seq c r) s
+stepComm (RepeatUntil c b) s = if T.fst $ evalExp b s
+                               then stepComm (Seq c (RepeatUntil c b)) s
                                else stepComm Skip s
 
 -- Evalúa una expresión
 -- Completar la definición
 evalExp :: Exp a -> State -> Pair a State
-evalExp = undefined
+evalExp (Const n) s = n :!: s
+evalExp (Var x) s = lookfor x s :!: s
+evalExp (UMinus e) s = let n :!: s' = evalExp e s
+                       in -n :!: s'
+evalExp (Plus e0 e1) s = let n0 :!: s' = evalExp e0 s
+                             n1 :!: s'' = evalExp e1 s'
+                         in n0 + n1 :!: s''
+evalExp (Minus e0 e1) s = let n0 :!: s' = evalExp e0 s
+                              n1 :!: s'' = evalExp e1 s'
+                          in n0 - n1 :!: s''
+evalExp (Times e0 e1) s = let n0 :!: s' = evalExp e0 s
+                              n1 :!: s'' = evalExp e1 s'
+                         in n0 * n1 :!: s''
+evalExp (Div e0 e1) s = let n0 :!: s' = evalExp e0 s
+                            n1 :!: s'' = evalExp e1 s'
+                        in div n0 n1 :!: s''
+evalExp (VarInc x) s = let n = lookfor x s + 1
+                       in n :!: update x n s
+evalExp (VarDec x) s = let n = lookfor x s - 1
+                       in n :!:update x n s
+evalExp BTrue s = True :!: s     
+evalExp BFalse s = False :!: s    
+evalExp (Lt e0 e1) s = let b0 :!: s' = evalExp e0 s
+                           b1 :!: s'' = evalExp e1 s'
+                       in b0 < b1 :!: s''
+evalExp (Gt e0 e1) s = let b0 :!: s' = evalExp e0 s
+                           b1 :!: s'' = evalExp e1 s'
+                       in b0 > b1 :!: s''
+evalExp (And p0 p1) s = let b0 :!: s' = evalExp p0 s
+                            b1 :!: s'' = evalExp p1 s'
+                       in b0 && b1 :!: s''
+evalExp (Or p0 p1) s = let b0 :!: s' = evalExp p0 s
+                           b1 :!: s'' = evalExp p1 s'
+                       in (b0 || b1) :!: s''
+evalExp (Not p) s = let b :!: s' = evalExp p s
+                    in not b :!: s'
+evalExp (Eq e0 e1) s = let b0 :!: s' = evalExp e0 s
+                           b1 :!: s'' = evalExp e1 s'
+                       in b0 == b1 :!: s''
+evalExp (NEq e0 e1) s = let b0 :!: s' = evalExp e0 s
+                            b1 :!: s'' = evalExp e1 s'
+                       in b0 /= b1 :!: s''
