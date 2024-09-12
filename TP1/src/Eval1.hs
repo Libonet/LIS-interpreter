@@ -54,7 +54,7 @@ stepComm (Let v e) s = let n :!: s' = evalExp e s
                        in Skip :!: s''
 stepComm (Seq Skip c) s = stepComm c s
 stepComm (Seq c1 c2) s = let c' :!: s' = stepComm c1 s
-                         in  stepComm (Seq c' c2) s
+                         in  stepComm (Seq c' c2) s'
 stepComm (IfThenElse b c1 c2) s = if T.fst $ evalExp b s 
                                   then stepComm c1 s
                                   else stepComm c2 s
