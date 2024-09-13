@@ -55,12 +55,11 @@ stepComm (Let v e) s = let n :!: s' = evalExp e s
 stepComm (Seq Skip c) s = stepComm c s
 stepComm (Seq c1 c2) s = let c' :!: s' = stepComm c1 s
                          in  stepComm (Seq c' c2) s'
-stepComm (IfThenElse b c1 c2) s = if T.fst $ evalExp b s 
-                                  then stepComm c1 s
-                                  else stepComm c2 s
-stepComm (RepeatUntil c b) s = if T.fst $ evalExp b s
-                               then stepComm (Seq c (RepeatUntil c b)) s
-                               else stepComm Skip s
+stepComm (IfThenElse b c1 c2) s = let bool :!: s' = evalExp b s 
+                                  in if bool 
+                                     then stepComm c1 s'
+                                     else stepComm c2 s'
+stepComm (RepeatUntil c b) s = stepComm (Seq c (IfThenElse b Skip (RepeatUntil c b))) s
 
 -- Evalúa una expresión
 -- Completar la definición
