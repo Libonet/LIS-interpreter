@@ -1,12 +1,3 @@
-# HOLA
-### holi
-
-> La vida es. -Santiago Libonati
-
-*énfasis* (cursiva)
-
-**énfasis fuerte** (negrita)
-
 ## EJERCICIO 1
 ### Sintaxis abstracta
 intexp ::= ...  
@@ -47,28 +38,13 @@ Si la última derivación de $t \rightsquigarrow t'$ usa la regla:
 Hemos probado que para cada posible regla aplicada en la derivación $t \rightsquigarrow t'$ se verifica lo planteado, con lo cual queda probado que si $t \rightsquigarrow t'$ y $t \rightsquigarrow t''$, entonces $t' = t''$, esto es, la relación de evaluación en un paso $\rightsquigarrow$ es determinista.
 
 ## EJERCICIO 6
+Construiremos los árboles de derivación de cada programa utiliando las siguientes reglas de inferencia para la relación $\rightsquigarrow^*$:
+![rt](/ej6/rt.png)
 
-<x=x+1; y=x, \sigma>
+Para el programa $\bold{a)}$ tenemos el siguiente árbol:
+![6a](/ej6/6a.png)
 
-Sea $x \in dom~\sigma:$
+Y para el programa $\bold{b)}$ tenemos:
+![6b](/ej6/6b.png)
 
-
-$${{x \in dom~\sigma 
-\over 
-\langle x++, \sigma \rangle \Downarrow_{exp} \langle ~\sigma~x + 1, [\sigma~|~x : ~\sigma~x + 1] \rangle}~VARINC
-\over
-
-\langle y=x++, \sigma \rangle \rightsquigarrow \langle ~skip, [\sigma~|~y : ~\sigma~x + 1] \rangle
-}~ASS$$
-
-
----
-
-
-$${{x \in dom~\sigma 
-\over 
-\langle x, \sigma \rangle \Downarrow_{exp} \langle ~\sigma~x, \sigma \rangle}~VAR
-\over
-
-\langle y=x, \sigma \rangle \rightsquigarrow \langle ~skip, [\sigma~|~y : ~\sigma~x] \rangle
-}~ASS$$
+Luego, los programas con semánticamente equivalentes.
