@@ -61,12 +61,6 @@ factor = (do {reservedOp lis "-"; e <- intexp; return (UMinus e)})
                   <|> return (Var i)})
          <|> parens lis intexp
 
---         <|> try (do i <- identifier lis
---                     reservedOp lis "--"
---                     return (VarDec i))
---         <|> try (do i <- identifier lis
---                     return (Var i))
-
 sumOps = (do {reservedOp lis "+"; return (Plus)})
          <|> (do {reservedOp lis "-"; return (Minus)})
          
@@ -80,36 +74,17 @@ boolexp :: Parser (Exp Bool)
 boolexp = chainl1 boolexp' (do {reservedOp lis "&&"; return (And)}
                             <|> do {reservedOp lis "||"; return (Or)})
 
-boolexp':: Parser (Exp Bool)
-boolexp' = do {reserved lis "true"; return BTrue}
-          <|> do {reserved lis "false"; return BFalse}
-          <|> do {reservedOp lis "!"; e <- boolexp; return (Not e)}
-          <|> parens lis boolexp
-          <|> do {ei <- intexp;
-                  (do {reservedOp lis "=="; ed <- intexp; return (Eq ei ed)})
-                  <|> (do {reservedOp lis "<"; ed <- intexp; return (Lt ei ed)})
-                  <|> (do {reservedOp lis ">"; ed <- intexp; return (Gt ei ed)})
-                  <|> (do {reservedOp lis "!="; ed <- intexp; return (NEq ei ed)})}
-          -- <|> chainl1 boolexp (do {reservedOp lis "&&"; return (And)})
-
-       {--   <|> do {ei <- intexp; reservedOp lis "=="; ed <- intexp; return (Eq ei ed)}
-          <|> do {ei <- intexp; reservedOp lis "<"; ed <- intexp; return (Lt ei ed)}
-          <|> do {ei <- intexp; reservedOp lis ">"; ed <- intexp; return (Gt ei ed)}
-          <|> do {ei <- intexp; reservedOp lis "!="; ed <- intexp; return (NEq ei ed)} --}
-
-
-{-boolexp = chainl1 boolexp (do {reservedOp lis "&&"; return (And)}) 
-          <|> chainl1 boolexp (do {reservedOp lis "||"; return (Or)})
-          <|> (do {reserved lis "true"; return (BTrue)})
-          <|> (do {reserved lis "false"; return (BFalse)})
-          <|> (do reservedOp lis "!"
-                  e <- boolexp
-                  return (Not e))
-          <|> parens lis boolexp
-          <|> do { ei <-intexp; reservedOp lis "=="; ed <- intexp; return (Eq ei ed)}
-          <|> do { ei <-intexp; reservedOp lis "!="; ed <- intexp; return (NEq ei ed)}
-          <|> do { ei <-intexp; reservedOp lis "<";  ed <- intexp; return (Lt ei ed)}
-          <|> do { ei <-intexp; reservedOp lis ">";  ed <- intexp; return (Gt ei ed)}-}
+boolexp' :: Parser (Exp Bool)
+boolexp' = do {reservedOp lis "!"; e <- boolexp; return (Not e)}
+           <|> do {reserved lis "false"; return BFalse}
+           <|> do {reserved lis "true"; return BTrue}
+           <|> parens lis boolexp
+           <|> (do {int1 <- intexp;
+                    (do {reservedOp lis "=="; int2 <- intexp; return (Eq int1 int2)})
+                    <|> (do {reservedOp lis "<"; int2 <- intexp; return (Lt int1 int2)})
+                    <|> (do {reservedOp lis ">"; int2 <- intexp; return (Gt int1 int2)})
+                    <|> (do {reservedOp lis "!="; int2 <- intexp; return (NEq int1 int2)})}
+               )
 
 -----------------------------------
 --- Parser de comandos
