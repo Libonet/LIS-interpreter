@@ -14,22 +14,24 @@ type State = (M.Map Variable Int, String)
 -- Estado vacío
 -- Completar la definición
 initState :: State
-initState = undefined
+initState = (M.empty, "")
 
 -- Busca el valor de una variable en un estado
 -- Completar la definición
 lookfor :: Variable -> State -> Either Error Int
-lookfor = undefined
+lookfor v (s, t) = case M.lookup v s of
+              Just n -> Right n
+              Nothing -> Left UndefVar
 
 -- Cambia el valor de una variable en un estado
 -- Completar la definición
 update :: Variable -> Int -> State -> State
-update = undefined
+update var val (s, t) = (M.insert var val s, t)
 
 -- Agrega una traza dada al estado
 -- Completar la definición
 addTrace :: String -> State -> State
-addTrace = undefined
+addTrace string (s, t) = (s, t ++ string)
 
 -- Evalúa un programa en el estado vacío
 eval :: Comm -> Either Error State
@@ -46,9 +48,102 @@ stepCommStar c    s = do
 -- Evalúa un paso de un comando en un estado dado
 -- Completar la definición
 stepComm :: Comm -> State -> Either Error (Pair Comm State)
-stepComm = undefined
+stepComm Skip s = Right (Skip :!: s)
+stepComm (Let v e) s = case evalExp e s of
+                       Right (n :!: s') -> let s'' = update v n s'
+                                               s''' = addTrace ("Let " ++ show v ++ " " ++ show n ++ "\n") s''
+                                           in Right (Skip :!: s''')
+                       Left error -> Left error
+stepComm (Seq Skip c) s = stepComm c s
+stepComm (Seq c1 c2) s = case stepComm c1 s of
+                         Right (c' :!: s') -> stepComm (Seq c' c2) s'
+                         error-> error
+stepComm (IfThenElse b c1 c2) s = case evalExp b s of
+                                  Right (bool :!: s') -> if bool
+                                                         then stepComm c1 s
+                                                         else stepComm c2 s
+                                  Left error -> Left error
+stepComm (RepeatUntil c b) s = stepComm (Seq c (IfThenElse b Skip (RepeatUntil c b))) s
 
 -- Evalúa una expresión
 -- Completar la definición
 evalExp :: Exp a -> State -> Either Error (Pair a State)
-evalExp = undefined
+evalExp (Const n) s = Right (n :!: s)
+evalExp (Var x) s = case lookfor x s of
+                    Left error -> Left error
+                    Right n  -> Right (n :!: s)
+evalExp (UMinus e) s = case evalExp e s of 
+                       Right (n :!: s') ->  Right (-n :!: s')
+                       Left error -> Left error
+evalExp (Plus e0 e1) s = case evalExp e0 s of
+                         Right (n0 :!: s') ->  case evalExp e1 s' of
+                                               Right (n1 :!: s'') -> Right (n0 + n1 :!: s'')
+                                               Left error -> Left error
+                         Left error -> Left error
+evalExp (Minus e0 e1) s = case evalExp e0 s of
+                          Right (n0 :!: s') -> 
+                           case evalExp e1 s' of
+                           Right (n1 :!: s'') -> Right (n0 - n1 :!: s'')
+                           Left error -> Left error
+                          Left error -> Left error
+evalExp (Times e0 e1) s = case evalExp e0 s of
+                          Right (n0 :!: s') -> 
+                           case evalExp e1 s' of
+                           Right (n1 :!: s'') -> Right (n0 * n1 :!: s'')
+                           Left error -> Left error
+                          Left error -> Left error
+evalExp (Div e0 e1) s = case evalExp e0 s of
+                        Right (n0 :!: s') -> 
+                         case evalExp e1 s' of
+                         Right (n1 :!: s'') -> if n1 == 0 
+                                               then Left DivByZero
+                                               else Right ((div n0 n1) :!: s'')
+                         Left error -> Left error
+                        Left error -> Left error
+evalExp (VarInc x) s = case lookfor x s of
+                       Left error -> Left error
+                       Right n  -> Right (n+1 :!: update x (n+1) s)
+evalExp (VarDec x) s = case lookfor x s of
+                       Left error -> Left error
+                       Right n  -> Right (n-1 :!: update x (n-1) s)
+evalExp BTrue s = Right (True :!: s)     
+evalExp BFalse s = Right (False :!: s)    
+evalExp (Lt e0 e1) s = case evalExp e0 s of
+                       Right (b0 :!: s') -> 
+                        case evalExp e1 s' of
+                        Right (b1 :!: s'') -> Right ((b0 < b1) :!: s'')
+                        Left error -> Left error
+                       Left error -> Left error
+evalExp (Gt e0 e1) s = case evalExp e0 s of
+                       Right (b0 :!: s') -> 
+                        case evalExp e1 s' of
+                        Right (b1 :!: s'') -> Right ((b0 > b1) :!: s'')
+                        Left error -> Left error
+                       Left error -> Left error
+evalExp (And p0 p1) s = case evalExp p0 s of
+                        Right (b0 :!: s') -> 
+                         case evalExp p1 s' of
+                         Right (b1 :!: s'') -> Right ((b0 && b1) :!: s'')
+                         Left error -> Left error
+                        Left error -> Left error
+evalExp (Or p0 p1) s = case evalExp p0 s of
+                       Right (b0 :!: s') -> 
+                        case evalExp p1 s' of
+                        Right (b1 :!: s'') -> Right ((b0 || b1) :!: s'')
+                        Left error -> Left error
+                       Left error -> Left error
+evalExp (Not p) s = case evalExp p s of 
+                    Right (b :!: s') -> Right (not b :!: s')
+                    Left error -> Left error 
+evalExp (Eq e0 e1) s = case evalExp e0 s of
+                       Right (b0 :!: s') -> 
+                        case evalExp e1 s' of
+                        Right (b1 :!: s'') -> Right ((b0 == b1) :!: s'')
+                        Left error -> Left error
+                       Left error -> Left error
+evalExp (NEq e0 e1) s = case evalExp e0 s of
+                        Right (b0 :!: s') -> 
+                         case evalExp e1 s' of
+                         Right (b1 :!: s'') -> Right ((b0 /= b1) :!: s'')
+                         Left error -> Left error
+                        Left error -> Left error
