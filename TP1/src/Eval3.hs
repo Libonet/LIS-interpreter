@@ -50,10 +50,10 @@ stepCommStar c    s = do
 stepComm :: Comm -> State -> Either Error (Pair Comm State)
 stepComm Skip s = Right (Skip :!: s)
 stepComm (Let v e) s = case evalExp e s of
-                       Right (n :!: s') -> let s'' = update v n s'
-                                               s''' = addTrace ("Let " ++ show v ++ " " ++ show n ++ "\n") s''
-                                           in Right (Skip :!: s''')
-                       Left error -> Left error
+             Right (n :!: s') -> let s'' = update v n s'
+                                     s''' = addTrace ("Let " ++ v ++ " " ++ show n ++ "\n") s''
+                                 in Right (Skip :!: s''')
+             Left error -> Left error
 stepComm (Seq Skip c) s = stepComm c s
 stepComm (Seq c1 c2) s = case stepComm c1 s of
                          Right (c' :!: s') -> stepComm (Seq c' c2) s'
