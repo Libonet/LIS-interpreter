@@ -11,7 +11,7 @@ import           Data.Strict.Tuple as T
 
 
 
-import Data.Maybe -- NO SE SI DEJAR ESTO
+import Data.Maybe
 
 
 
