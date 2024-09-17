@@ -32,9 +32,9 @@ $$
 
 ## EJERCICIO 4
 
-$${x \in dom~\sigma \over \langle x++, \sigma \rangle \Downarrow_{exp} \langle ~\sigma~x + 1, [\sigma~|~x : ~\sigma~x + 1] \rangle}~VARINC$$
+$${x \in dom~\sigma \over \langle x++, \sigma \rangle \Downarrow_{exp} \langle ~\sigma~x + 1, [\sigma \mid x : ~\sigma~x + 1] \rangle}~VARINC$$
 
-$${x \in dom~\sigma \over \langle x--, \sigma \rangle \Downarrow_{exp} \langle ~\sigma~x - 1, [\sigma~|~x : ~\sigma~x - 1] \rangle}~VARDEC$$
+$${x \in dom~\sigma \over \langle x--, \sigma \rangle \Downarrow_{exp} \langle ~\sigma~x - 1, [\sigma \mid x : ~\sigma~x - 1] \rangle}~VARDEC$$
 
 ## EJERCICIO 5
 Queremos ver que si $t \rightsquigarrow t'$ y $t \rightsquigarrow t''$, entonces $t' = t''$.  
@@ -44,7 +44,7 @@ HI) para toda subderivación de $t \rightsquigarrow t'$ se verifica la regla.
 
 Si la última derivación de $t \rightsquigarrow t'$ usa la regla:
 
-* $ASS$: Tenemos que t tiene la forma $\langle v=e, \sigma \rangle$ y t' tiene la forma $\langle skip, [\sigma'~|~v:n] \rangle$. Por la forma de t, en la derivación $t \rightsquigarrow t''$ la última regla aplicada solo puede haber sido $ASS$, ya que no hay otra regla donde t pueda ser una asignación. Luego, como $\Downarrow_{exp}$ es determinista, resulta $t'=t''$.
+* $ASS$: Tenemos que t tiene la forma $\langle v=e, \sigma \rangle$ y t' tiene la forma $\langle skip, [\sigma' \mid v:n] \rangle$. Por la forma de t, en la derivación $t \rightsquigarrow t''$ la última regla aplicada solo puede haber sido $ASS$, ya que no hay otra regla donde t pueda ser una asignación. Luego, como $\Downarrow_{exp}$ es determinista, resulta $t'=t''$.
 
 * $SEQ_1$: Tenemos que t tiene la forma $\langle skip; c_1, \sigma \rangle$ y t' tiene la forma $\langle c_1, \sigma \rangle$. Por la forma de t, en la derivación $t \rightsquigarrow t''$ la última regla aplicada solo puede haber sido $SEQ_1$, ya que no hay otra regla donde t pueda ser una secuenciación con un skip. Luego, $t'=t''$.
 
@@ -96,19 +96,19 @@ Para el programa **a)** tenemos el siguiente árbol:
         \hypo{}
         \infer1[\text{NVAL}]{\langle 1, \sigma \rangle \Downarrow_{exp} \langle 1, \sigma \rangle}
         \infer2[\text{PLUS}]{\langle x+1, \sigma \rangle \Downarrow_{exp} \langle \sigma x+1, \sigma \rangle}
-        \infer1[\text{ASS}]{~~~~~~~~\langle x=x+1, \sigma \rangle \rightsquigarrow ~\langle skip, [\sigma | x : \sigma x+1] \rangle~~~~~~~~}
-        \infer1[\text{$SEQ_2$}]{\langle x=x+1; y=x, \sigma \rangle \rightsquigarrow ~\langle skip; y=x, [\sigma | x : \sigma x+1] \rangle}
-        \infer1[\text{$RT_1$}]{\langle x=x+1; y=x, \sigma \rangle \rightsquigarrow^* \langle skip; y=x, [\sigma | x : \sigma x+1] \rangle}
+        \infer1[\text{ASS}]{~~~~~~~~\langle x=x+1, \sigma \rangle \rightsquigarrow ~\langle skip, [\sigma \mid x : \sigma x+1] \rangle~~~~~~~~}
+        \infer1[\text{$SEQ_2$}]{\langle x=x+1; y=x, \sigma \rangle \rightsquigarrow ~\langle skip; y=x, [\sigma \mid x : \sigma x+1] \rangle}
+        \infer1[\text{$RT_1$}]{\langle x=x+1; y=x, \sigma \rangle \rightsquigarrow^* \langle skip; y=x, [\sigma \mid x : \sigma x+1] \rangle}
         \hypo{}
-        \infer1[\text{$SEQ_1$}]{\langle skip; y=x, [\sigma | x : \sigma x+1] \rangle \rightsquigarrow ~\langle y=x, [\sigma | x : \sigma x+1] \rangle}
-        \infer1[\text{$RT_1$}]{\langle skip; y=x, [\sigma | x : \sigma x+1] \rangle \rightsquigarrow^* \langle y=x, [\sigma | x : \sigma x+1] \rangle}
-        \infer2[\text{$RT_3$}]{~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\langle x=x+1; y=x, \sigma \rangle \rightsquigarrow^* \langle y=x, [\sigma | x : \sigma x+1] \rangle~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
+        \infer1[\text{$SEQ_1$}]{\langle skip; y=x, [\sigma \mid x : \sigma x+1] \rangle \rightsquigarrow ~\langle y=x, [\sigma \mid x : \sigma x+1] \rangle}
+        \infer1[\text{$RT_1$}]{\langle skip; y=x, [\sigma \mid x : \sigma x+1] \rangle \rightsquigarrow^* \langle y=x, [\sigma \mid x : \sigma x+1] \rangle}
+        \infer2[\text{$RT_3$}]{~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\langle x=x+1; y=x, \sigma \rangle \rightsquigarrow^* \langle y=x, [\sigma \mid x : \sigma x+1] \rangle~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
         
-        \hypo{x \in dom~[\sigma | x : \sigma x+1]}
-        \infer1[\text{VAR}]{\langle x, [\sigma | x : \sigma x+1] \rangle \Downarrow_{exp} \langle \sigma x, [\sigma | x : \sigma x+1] \rangle}
-        \infer1[\text{ASS}]{\langle y=x, [\sigma | x : \sigma x+1] \rangle \rightsquigarrow \langle skip, [\sigma | x : \sigma x+1, y : \sigma x+1] \rangle}
-        \infer1[\text{$RT_1$}]{\langle y=x, [\sigma | x : \sigma x+1] \rangle \rightsquigarrow^* \langle skip, [\sigma | x : \sigma x+1, y : \sigma x+1] \rangle}
-        \infer2[\text{$RT_3$}]{\langle x=x+1; y=x, \sigma \rangle \rightsquigarrow^* \langle skip, [\sigma | x : \sigma x+1, y : \sigma x+1] \rangle}
+        \hypo{x \in dom~[\sigma \mid x : \sigma x+1]}
+        \infer1[\text{VAR}]{\langle x, [\sigma \mid x : \sigma x+1] \rangle \Downarrow_{exp} \langle \sigma x, [\sigma \mid x : \sigma x+1] \rangle}
+        \infer1[\text{ASS}]{\langle y=x, [\sigma \mid x : \sigma x+1] \rangle \rightsquigarrow \langle skip, [\sigma \mid x : \sigma x+1, y : \sigma x+1] \rangle}
+        \infer1[\text{$RT_1$}]{\langle y=x, [\sigma \mid x : \sigma x+1] \rangle \rightsquigarrow^* \langle skip, [\sigma \mid x : \sigma x+1, y : \sigma x+1] \rangle}
+        \infer2[\text{$RT_3$}]{\langle x=x+1; y=x, \sigma \rangle \rightsquigarrow^* \langle skip, [\sigma \mid x : \sigma x+1, y : \sigma x+1] \rangle}
     \end{prooftree}
 }
 \end{center}
@@ -121,10 +121,9 @@ Y para el programa **b)** tenemos:
 \scalebox{1.2}{
     \begin{prooftree}
         \hypo{x \in dom~\sigma}
-        \infer1[\text{VAR}]{\langle x, \sigma \rangle \Downarrow_{exp} \langle \sigma x, \sigma \rangle}
-        \infer1[\text{VARINC}]{\langle x++, \sigma \rangle \Downarrow_{exp} \langle \sigma x+1, [\sigma | x : \sigma x+1] \rangle}
-        \infer1[\text{ASS}]{\langle y=x++, \sigma \rangle \rightsquigarrow \langle skip, [\sigma | x : \sigma x+1, y : \sigma x+1] \rangle}
-        \infer1[\text{$RT_1$}]{\langle y=x++, \sigma \rangle \rightsquigarrow^* \langle skip, [\sigma | x : \sigma x+1, y : \sigma x+1] \rangle}
+        \infer1[\text{VARINC}]{\langle x++, \sigma \rangle \Downarrow_{exp} \langle \sigma x+1, [\sigma \mid x : \sigma x+1] \rangle}
+        \infer1[\text{ASS}]{\langle y=x++, \sigma \rangle \rightsquigarrow \langle skip, [\sigma \mid x : \sigma x+1, y : \sigma x+1] \rangle}
+        \infer1[\text{$RT_1$}]{\langle y=x++, \sigma \rangle \rightsquigarrow^* \langle skip, [\sigma \mid x : \sigma x+1, y : \sigma x+1] \rangle}
     \end{prooftree}
 }
 \end{center}
