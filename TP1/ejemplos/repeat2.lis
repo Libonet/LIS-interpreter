@@ -1,0 +1,4 @@
+x = 0;
+repeat {
+  skip
+} until x++ == 5
