@@ -40,7 +40,7 @@ $${x \in dom~\sigma \over \langle x--, \sigma \rangle \Downarrow_{exp} \langle ~
 Queremos ver que si $t \rightsquigarrow t'$ y $t \rightsquigarrow t''$, entonces $t' = t''$.  
 Para ello haremos inducción sobre la derivación $t \rightsquigarrow t'$.
 
-HI) para toda subderivación de $t \rightsquigarrow t'$ se verifica la regla.
+HI) para toda subderivación de $t \rightsquigarrow t'$ se verifica dicha propiedad.
 
 Si la última derivación de $t \rightsquigarrow t'$ usa la regla:
 
@@ -129,4 +129,6 @@ Y para el programa **b)** tenemos:
 \end{center}
 ```
 
-Luego, los programas con semánticamente equivalentes.
+Luego, tenemos que $\forall \sigma \in \Sigma,~\langle x=x+1; y=x, \sigma \rangle \rightsquigarrow^* \langle skip, \sigma' \rangle$ sii $\langle y=x++, \sigma \rangle \rightsquigarrow^* \langle skip, \sigma' \rangle$
+
+Por lo tanto, los programas con semánticamente equivalentes.
