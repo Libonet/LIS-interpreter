@@ -9,12 +9,7 @@ import qualified Data.Map.Strict               as M
 import           Data.Strict.Tuple as T
 
 
-
-
 import Data.Maybe
-
-
-
 
 
 -- Estados
@@ -67,7 +62,7 @@ evalExp :: Exp a -> State -> Pair a State
 evalExp (Const n) s = n :!: s
 evalExp (Var x) s = lookfor x s :!: s
 evalExp (UMinus e) s = let n :!: s' = evalExp e s
-                       in -n :!: s'
+                       in (-n) :!: s'
 evalExp (Plus e0 e1) s = let n0 :!: s' = evalExp e0 s
                              n1 :!: s'' = evalExp e1 s'
                          in n0 + n1 :!: s''
@@ -106,3 +101,4 @@ evalExp (Eq e0 e1) s = let b0 :!: s' = evalExp e0 s
 evalExp (NEq e0 e1) s = let b0 :!: s' = evalExp e0 s
                             b1 :!: s'' = evalExp e1 s'
                        in b0 /= b1 :!: s''
+
