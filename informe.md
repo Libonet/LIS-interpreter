@@ -1,7 +1,7 @@
 ---
-title: "TP1: Lenguaje imperativo simple"
-author: Grillo, Libonati, Maiza
-date: 16/09/24
+title: "TP1: Lenguaje Imperativo Simple"
+author: Grillo (G-5811/4), Libonati (L-3256/5), Maiza (M-7116/1)
+date: 17/09/24
 geometry: margin=2cm
 output: pdf_document
 header-includes:
